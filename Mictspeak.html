@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+     <html lang="en">
+     <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>Microphone to Speaker</title>
+     </head>
+     <body>
+         <h1>Microphone to Speaker</h1>
+         <button id="start">Start</button>
+         <button id="stop">Stop</button>
+         <script>
+             const startButton = document.getElementById('start');
+             const stopButton = document.getElementById('stop');
+             let mediaRecorder;
+             let audioChunks = [];
+
+             startButton.addEventListener('click', async () => {
+                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                 mediaRecorder = new MediaRecorder(stream);
+                 mediaRecorder.ondataavailable = event => {
+                     audioChunks.push(event.data);
+                 };
+                 mediaRecorder.onstop = () => {
+                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                     const audioUrl = URL.createObjectURL(audioBlob);
+                     const audio = new Audio(audioUrl);
+                     audio.play();
+                     audioChunks = [];
+                 };
+                 mediaRecorder.start();
+             });
+
+             stopButton.addEventListener('click', () => {
+                 mediaRecorder.stop();
+             });
+         </script>
+     </body>
+     </html>
